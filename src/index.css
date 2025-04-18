@@ -1,0 +1,27 @@
+@import 'tailwindcss' ;
+@plugin "@midudev/tailwind-animations";
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --bg-dark: #e1dede2c;
+  --bg-light: #d0cfcf;
+  --bg-astro: #FF5D01;
+  --bg-astro-h: #FF6D00;
+  --border-default: 0deg 0% 18%;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100dvh;
+  background: #f7f3f2;
+}
+
+
+@media(prefers-color-scheme: dark) {
+  body {
+    /*background: #1c1d1c;*/
+    background: #121212;
+    color: white;
+  }
+}
