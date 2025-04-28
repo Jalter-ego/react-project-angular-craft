@@ -38,6 +38,7 @@ export const Rectangle: React.FC<RectangleProps> = ({
         strokeWidth={shapeProps.strokeWidth ?? undefined}
         stroke={shapeProps.stroke ?? undefined}
         cornerRadius={shapeProps.cornerRadius ?? 0}
+        opacity={shapeProps.opacity ?? 1}
         draggable
         onDragEnd={(e) => {
           onChange({
@@ -63,6 +64,9 @@ export const Rectangle: React.FC<RectangleProps> = ({
             width: Math.max(5, node.width() * scaleX),
             height: Math.max(5, node.height() * scaleY),
             cornerRadius: shapeProps.cornerRadius,
+            stroke: shapeProps.stroke,
+            strokeWidth: shapeProps.strokeWidth,
+            opacity: shapeProps.opacity,
             fill: shapeProps.fill,
             id: shapeProps.id,
           });

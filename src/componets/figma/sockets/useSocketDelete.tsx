@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { CircleProps, RectProps, TextProps } from "../../lib/types";
+import { CircleProps, RectProps, TextProps } from '../../../lib/types';
 
 
 export const useDeleteKey = (

@@ -7,25 +7,31 @@ import { Rectangle } from "../componets/figma/RectangleShape";
 import { CircleShape } from "../componets/figma/CircleShape";
 import { TextShape } from "../componets/figma/TextShape";
 import { useParams } from "react-router-dom";
-import { socket } from "../api/index";
+
 import { ModalText } from "../componets/figma/TextModal";
 import { ModalCircle } from "../componets/figma/CircleModal";
 import { ModalRect } from "../componets/figma/RectangleModal";
-import { useSocketCanvas } from "../componets/figma/useSocketCanvas";
-import { useDeleteKey } from "../componets/figma/useSocketDelete";
+import { useSocketCanvas } from "../componets/figma/sockets/useSocketCanvas";
+import { useDeleteKey } from "../componets/figma/sockets/useSocketDelete";
 import { fetchFindOneFigma, fetchUpdateFigma, fetchUpdateImageFigma, uploadImage } from "../api/figma";
 import Konva from "konva";
+import { handleSoket } from "../componets/figma/sockets/handleSockets";
+import { toast } from 'sonner'
+import { useZoom } from "../hooks/useZoom";
 
 
 export default function Figma() {
 
     const { id } = useParams()
-    const stateRef = useRef<Konva.Stage | null> (null)
+    const stateRef = useRef<Konva.Stage | null>(null)
     const [selectedTool, setSelectedTool] = useState<string | null>(null);
     const [rectangles, setRectangles] = useState<RectProps[]>([]);
     const [circles, setCircles] = useState<CircleProps[]>([]);
     const [texts, setTexts] = useState<TextProps[]>([]);
     const [selectedId, selectShape] = useState<string | null>(null);
+    const { handleCanvasChange, handleRectChange, handleCircleChange
+        , handleTextChange
+    } = handleSoket({ id, rectangles, circles, texts, setRectangles, setCircles, setTexts })
     const {
         handleColorChange,
         handleStrokeColorChange,
@@ -35,39 +41,14 @@ export default function Figma() {
         handleFontFamilyChange,
         handleStageClick,
         handleTextContentChange,
+        handleOpacityChange
     } = createShapeHandlers(selectedId, selectedTool, rectangles, circles, texts,
-        selectShape, setSelectedTool, setRectangles, setCircles, setTexts);
+        selectShape, setSelectedTool, setRectangles, setCircles, setTexts, handleCanvasChange);
 
-
-
-    const handleCanvasChange = (newData: any) => {
-        socket.emit("update-canvas", {
-            roomId: id,
-            data: newData,
-        });
-    };
     useSocketCanvas(id, setRectangles, setCircles, setTexts)
-    useDeleteKey(selectedId, setRectangles, setCircles, setTexts, rectangles, circles, texts, selectShape, handleCanvasChange);
-
-
-
-    const handleRectChange = (newAttrs: RectProps) => {
-        const newRects = rectangles.map((r) => r.id === newAttrs.id ? newAttrs : r);
-        setRectangles(newRects);
-        handleCanvasChange({ rectangles: newRects });
-    };
-
-    const handleCircleChange = (newAttrs: CircleProps) => {
-        const newCircles = circles.map((c) => c.id === newAttrs.id ? newAttrs : c);
-        setCircles(newCircles);
-        handleCanvasChange({ circles: newCircles });
-    };
-
-    const handleTextChange = (newAttrs: TextProps) => {
-        const newTexts = texts.map((t) => t.id === newAttrs.id ? newAttrs : t);
-        setTexts(newTexts);
-        handleCanvasChange({ texts: newTexts });
-    };
+    useDeleteKey(selectedId, setRectangles, setCircles, setTexts,
+        rectangles, circles, texts, selectShape, handleCanvasChange);
+    useZoom(stateRef)
 
     const handleSaveFigma = async () => {
         try {
@@ -76,14 +57,12 @@ export default function Figma() {
                 circles: circles,
                 texts: texts
             }
-
             const data = await fetchUpdateFigma(id || '', updateFigma)
             const img = await handleExport();
             const data2 = await fetchUpdateImageFigma(id || '', img);
             console.log(data);
             console.log(data2);
-            
-
+            return data2;
         } catch (error) {
 
         }
@@ -115,7 +94,7 @@ export default function Figma() {
         return new Blob([u8arr], { type: mime });
     };
 
-    const handleExport = async() => {
+    const handleExport = async () => {
         if (!stateRef.current) return;
         const uri = stateRef.current.toDataURL({ mimeType: "image/png" });
         const blob = dataURLtoBlob(uri);
@@ -124,15 +103,12 @@ export default function Figma() {
         return urlImage
     }
 
+    
+      
 
 
     return (
         <div className="flex flex-col items-center w-full h-full gap-10 relative">
-            <button
-                onClick={handleSaveFigma}
-                className="z-50 absolute cursor-pointer left-2 dark:bg-[var(--bg-dark)] p-1 px-3 rounded-3xl hover:opacity-80">
-                save
-            </button>
             <div className="w-full h-full absolute overflow-hidden">
                 <Fragment>
                     <Stage
@@ -174,7 +150,7 @@ export default function Figma() {
                 </Fragment>
             </div>
 
-            <nav className="flex items-center justify-center gap-4 dark:bg-[#2c2c2c] bg-[#1c1d1c45] p-2 px-2 rounded-2xl bottom-4 absolute">
+            <nav className="flex items-center justify-center gap-4 bg-[#2c2c2c]  p-2 px-2 rounded-2xl bottom-4 absolute">
                 {tools.map((tool) => (
                     <div
                         key={tool.name}
@@ -185,10 +161,28 @@ export default function Figma() {
                         {tool.icon}
                     </div>
                 ))}
+                <button
+                    className="p-1 rounded-lg transition-all duration-300 hover:bg-[#f7f3f236]" 
+                    onClick={async () => {
+                        try {
+                            const promise = handleSaveFigma();
+                            toast.promise(promise,{
+                                loading: 'loading...',
+                                success: 'Diseño guardado correctamente'
+                            })
+                        } catch (error) {
+                            toast.error('No se pudo guardar el diseño');
+                        }
+                    }}
+                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1} strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
+                </button>
             </nav>
             {selectedId && (
                 <>
-                    <ModalRect {...{ selectedId, rectangles, handleColorChange, handleCornerRadiusChange, handleStrokeColorChange, handleStrokeWidthChange }} />
+                    <ModalRect {...{ selectedId, rectangles, handleColorChange, 
+                        handleCornerRadiusChange, handleStrokeColorChange, handleStrokeWidthChange,
+                        handleOpacityChange }} />
                     <ModalCircle {...{ selectedId, circles, handleColorChange }} />
                     <ModalText {...{ selectedId, texts, handleColorChange, handleFontSizeChange, handleFontFamilyChange, handleTextContentChange }} />
                 </>

@@ -22,55 +22,59 @@ export const ModalText: React.FC<ModalTextProps> = ({
   if (!selectedText) return null;
 
   return (
-    <div className="absolute top-4 right-4 bg-white dark:bg-[#333] p-4 rounded-xl shadow-xl z-50 flex flex-col gap-3 w-60">
-      <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-        Color del texto:
+    <div className="absolute top-1 right-1 bg-[var(--bg-chatgpt2)]  rounded-sm
+        z-50 flex flex-col gap-3 w-[100px] md:w-[200px] overflow-hidden
+        md:text-sm text-[9px] text-zinc-300">
+      <div className="flex flex-col gap-2 md:px-4 px-2 pt-1">
+        <label >Color de relleno</label>
         <input
           type="color"
           onChange={handleColorChange}
-          value={selectedText.fill}
-          className="ml-2 w-8 h-8 cursor-pointer rounded-4xl"
+          value={selectedText.fill || "#000000"}
+          className="w-full h-5 md:h-20 cursor-pointer rounded-3xl"
         />
-      </label>
+      </div>
 
-      <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-        Texto:
+      <div className="flex flex-col gap-2 md:px-4 px-2 pt-1">
+        <label >Text</label>
         <input
           type="text"
           min={5}
           max={200}
           value={selectedText.text}
           onChange={handleTextContentChange}
-          className="ml-2 mt-1 w-full px-2  rounded border dark:bg-[#444] dark:text-white flex items-center"
+          className="w-full px-2 rounded border"
         />
-      </label>
+      </div>
 
-      <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-        Tamaño de fuente:
+      <div className="flex flex-col gap-2 md:px-4 px-2 pt-1">
+        <label >Font Size</label>
         <input
           type="number"
           min={5}
           max={200}
-          value={selectedText.fontSize}
+          value={selectedText.fontSize.toFixed()}
           onChange={handleFontSizeChange}
-          className="ml-2 mt-1 w-16 px-2  rounded border dark:bg-[#444] dark:text-white flex items-center"
+          className="w-16 px-2  rounded border"
         />
-      </label>
+      </div>
 
-      <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-        Fuente:
+      <div className="flex flex-col gap-2 md:px-4 px-2 pb-4">
+        <label >Font Family</label>
         <select
           value={selectedText.fontFamily || "Arial"}
           onChange={handleFontFamilyChange}
-          className="ml-2 mt-1 w-full px-2 py-1 rounded border dark:bg-[#444] dark:text-white flex items-center text-sm"
+          className="px-2 py-1 rounded border text-sm"
         >
           <option value="Arial">Arial</option>
           <option value="Times New Roman">Times New Roman</option>
           <option value="Verdana">Verdana</option>
           <option value="Courier New">Courier New</option>
           <option value="Georgia">Georgia</option>
+          <option value="Segoe UI">Segoe UI</option>
+          <option value="Roboto">Roboto</option>
         </select>
-      </label>
+      </div>
     </div>
   );
 };

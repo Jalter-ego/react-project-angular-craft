@@ -7,6 +7,9 @@ import Layout from "./layout";
 import Login from "./componets/auth/Login";
 import Register from "./componets/auth/Register";
 import Diagram from "./pages/Diagram";
+import CodeBlitz from "./pages/CodeBlitz";
+
+
 
 export function App() {
   return (
@@ -17,6 +20,7 @@ export function App() {
         <Route path="/figma/:id" element={<Figma />} />
         <Route path="/image" element={<Image />} />
         <Route path="/diagram" element={<Diagram />} />
+        <Route path="/code-blitz" element={<CodeBlitz />} />
       </Route>
 
       <Route path="/auth/login" element={<Login/>}/>

@@ -12,21 +12,23 @@ export const ModalCircle: React.FC<ModalCircleProps> = ({
     circles,
     handleColorChange
 }) => {
-    
+
     const selectedRect = circles.find((r) => r.id === selectedId);
     if (!selectedRect) return null;
 
     return (
-        <div className="absolute top-4 right-4 bg-white dark:bg-[#333] p-4 rounded-xl shadow-xl z-50 flex flex-col gap-3">
-            <label className="flex items-center text-sm font-medium text-gray-700 dark:text-white">
-                Color de relleno:
+        <div className="absolute top-1 right-1 bg-[var(--bg-chatgpt2)]
+            p- z-50 flex flex-col gap-3 rounded-sm w-[100px] md:w-[200px]
+            md:text-sm text-[9px] text-zinc-300">
+            <div className="flex flex-col gap-2 md:px-4 px-2 pt-1">
+                <label >Color de relleno</label>
                 <input
                     type="color"
                     onChange={handleColorChange}
-                    value={selectedRect.fill}
-                    className="ml-2 w-8 h-8 cursor-pointer rounded-[50%]"
+                    value={selectedRect.fill || "#000000"}
+                    className="w-full h-5 md:h-20 cursor-pointer rounded-lg"
                 />
-            </label>
+            </div>
         </div>
     );
 };

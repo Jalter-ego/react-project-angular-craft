@@ -35,6 +35,8 @@ export const TextShape: React.FC<TextShapeProps> = ({
                 ref={shapeRef}
                 {...shapeProps}
                 fontFamily={shapeProps.fontFamily || undefined}
+                stroke={shapeProps.fill}
+                strokeWidth={0}
                 draggable
                 onDragEnd={(e) => {
                     onChange({

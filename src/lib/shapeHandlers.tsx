@@ -1,6 +1,20 @@
-import { Dispatch, SetStateAction } from "react";// Ajusta esto a tu archivo real
+import { Dispatch, SetStateAction } from "react";
 import { CircleProps, RectProps, TextProps } from "./types";
 import Konva from "konva";
+
+function updateById<T extends { id: string }>(
+    items: T[],
+    id: string | null,
+    update: (item: T) => T
+): T[] {
+    if (!id) return items;
+    return items.map(item => (item.id === id ? update(item) : item));
+}
+
+function getPointerPosition(e: Konva.KonvaEventObject<MouseEvent>) {
+    const stage = e.target.getStage();
+    return stage?.getPointerPosition() || null;
+}
 
 export const createShapeHandlers = (
     selectedId: string | null,
@@ -12,7 +26,8 @@ export const createShapeHandlers = (
     setSelectedTool: Dispatch<SetStateAction<string | null>>,
     setRectangles: Dispatch<SetStateAction<RectProps[]>>,
     setCircles: Dispatch<SetStateAction<CircleProps[]>>,
-    setTexts: Dispatch<SetStateAction<TextProps[]>>
+    setTexts: Dispatch<SetStateAction<TextProps[]>>,
+    handleCanvasChange: (newData: any) => void
 ) => {
     const checkDeselect = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
         const clickedOnEmpty = e.target === e.target.getStage();
@@ -23,148 +38,125 @@ export const createShapeHandlers = (
 
     const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newColor = e.target.value;
-
-        setRectangles((prev) =>
-            prev.map((shape) =>
-                shape.id === selectedId ? { ...shape, fill: newColor } : shape
-            )
-        );
-        setCircles((prev) =>
-            prev.map((shape) =>
-                shape.id === selectedId ? { ...shape, fill: newColor } : shape
-            )
-        );
-        setTexts((prev) =>
-            prev.map((shape) =>
-                shape.id === selectedId ? { ...shape, fill: newColor } : shape
-            )
-        );
+    
+        let updated = false;
+    
+        const rectFound = rectangles.find(r => r.id === selectedId);
+        if (rectFound) {
+            const newRects = rectangles.map(r =>
+                r.id === selectedId ? { ...r, fill: newColor } : r
+            );
+            setRectangles(newRects);
+            handleCanvasChange({ rectangles: newRects, circles, texts });
+            updated = true;
+        }
+    
+        const circleFound = circles.find(c => c.id === selectedId);
+        if (!updated && circleFound) {
+            const newCircles = circles.map(c =>
+                c.id === selectedId ? { ...c, fill: newColor } : c
+            );
+            setCircles(newCircles);
+            handleCanvasChange({ rectangles, circles: newCircles, texts });
+            updated = true;
+        }
+    
+        const textFound = texts.find(t => t.id === selectedId);
+        if (!updated && textFound) {
+            const newTexts = texts.map(t =>
+                t.id === selectedId ? { ...t, fill: newColor } : t
+            );
+            setTexts(newTexts);
+            handleCanvasChange({ rectangles, circles, texts: newTexts });
+        }
     };
-
+    
 
     const handleStrokeColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newStrokeColor = e.target.value;
-        setRectangles((prevRects) =>
-            prevRects.map((rect) =>
-                rect.id === selectedId ? { ...rect, stroke: newStrokeColor } : rect
-            )
-        );
+        setRectangles(prev => updateById(prev, selectedId, r => ({ ...r, stroke: newStrokeColor })));
     };
 
     const handleStrokeWidthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newStrokeWidth = parseInt(e.target.value);
-        setRectangles((prevRects) =>
-            prevRects.map((rect) =>
-                rect.id === selectedId ? { ...rect, strokeWidth: newStrokeWidth } : rect
-            )
-        );
+        setRectangles(prev => updateById(prev, selectedId, r => ({ ...r, strokeWidth: newStrokeWidth })));
     };
 
     const handleCornerRadiusChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newCornerRadius = parseInt(e.target.value);
-        setRectangles((prevRects) =>
-            prevRects.map((rect) =>
-                rect.id === selectedId ? { ...rect, cornerRadius: newCornerRadius } : rect
-            )
-        );
+        setRectangles(prev => updateById(prev, selectedId, r => ({ ...r, cornerRadius: newCornerRadius })));
     };
+
+    const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newOpacity = parseFloat(e.target.value);
+        setRectangles(prev => updateById(prev, selectedId, r => ({ ...r, opacity: newOpacity })));
+      };      
 
     const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
         checkDeselect(e);
-        console.log(selectedTool)
+        const pointer = getPointerPosition(e);
+        if (!pointer) return;
 
-        if (selectedTool === "cuadrado") {
-            const stage = e.target.getStage();
-            if (!stage) return;
-
-            const pointerPosition = stage.getPointerPosition();
-            if (!pointerPosition) return;
-
-            const newRect: RectProps = {
-                x: pointerPosition.x,
-                y: pointerPosition.y,
-                width: 100,
-                cornerRadius: null,
-                stroke: null,
-                strokeWidth: null,
-                height: 100,
-                fill: "#ffffff",
-                id: `rect-${Date.now()}`,
-            };
-            console.log(newRect.stroke);
-            
-
-            setRectangles([...rectangles, newRect]);
-            selectShape(newRect.id);
-            setSelectedTool('')
+        switch (selectedTool) {
+            case "cuadrado": {
+                const newRect: RectProps = {
+                    x: pointer.x,
+                    y: pointer.y,
+                    width: 100,
+                    height: 100,
+                    cornerRadius: null,
+                    opacity: null,
+                    stroke: null,
+                    strokeWidth: null,
+                    fill: "#ffffff",
+                    id: `rect-${Date.now()}`
+                };
+                setRectangles([...rectangles, newRect]);
+                selectShape(newRect.id);
+                break;
+            }
+            case "circulo": {
+                const newCircle: CircleProps = {
+                    x: pointer.x,
+                    y: pointer.y,
+                    radius: 50,
+                    fill: "#ffffff",
+                    id: `circle-${Date.now()}`
+                };
+                setCircles([...circles, newCircle]);
+                selectShape(newCircle.id);
+                break;
+            }
+            case "text": {
+                const newText: TextProps = {
+                    x: pointer.x,
+                    y: pointer.y,
+                    fontSize: 12,
+                    fontFamily: null,
+                    text: "text",
+                    fill: "#ffffff",
+                    id: `text-${Date.now()}`
+                };
+                setTexts([...texts, newText]);
+                selectShape(newText.id);
+                break;
+            }
         }
 
-        if (selectedTool === "circulo") {
-            const stage = e.target.getStage();
-            if (!stage) return;
-
-            const pointerPosition = stage.getPointerPosition();
-            if (!pointerPosition) return;
-
-            const newCircle: CircleProps = {
-                x: pointerPosition.x,
-                y: pointerPosition.y,
-                radius: 50,
-                fill: "#ffffff",
-                id: `circle-${Date.now()}`
-            };
-
-
-            setCircles([...circles, newCircle]);
-            selectShape(newCircle.id);
-            setSelectedTool('')
-        }
-
-        if (selectedTool === "text") {
-            const stage = e.target.getStage();
-            if (!stage) return;
-
-            const pointerPosition = stage.getPointerPosition();
-            if (!pointerPosition) return;
-
-            const newText: TextProps = {
-                x: pointerPosition.x,
-                y: pointerPosition.y,
-                fontSize: 12,
-                fontFamily: null,
-                text: "text",
-                fill: "#ffffff",
-                id: `text-${Date.now()}`
-            };
-
-
-            setTexts([...texts, newText]);
-            selectShape(newText.id);
-            setSelectedTool('')
-        }
-    }
+        setSelectedTool('');
+    };
 
     const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const updated = texts.map((t) =>
-            t.id === selectedId ? { ...t, fontSize: parseInt(e.target.value) } : t
-        );
-        setTexts(updated);
+        setTexts(prev => updateById(prev, selectedId, t => ({ ...t, fontSize: parseInt(e.target.value) })));
     };
 
     const handleFontFamilyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const updated = texts.map((t) =>
-            t.id === selectedId ? { ...t, fontFamily: e.target.value } : t
-        );
-        setTexts(updated);
+        setTexts(prev => updateById(prev, selectedId, t => ({ ...t, fontFamily: e.target.value })));
     };
 
     const handleTextContentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const updated = texts.map((t) =>
-            t.id === selectedId ? { ...t, text: e.target.value } : t
-        );
-        setTexts(updated);
+        setTexts(prev => updateById(prev, selectedId, t => ({ ...t, text: e.target.value })));
     };
-
 
     return {
         handleColorChange,
@@ -174,6 +166,7 @@ export const createShapeHandlers = (
         handleFontSizeChange,
         handleFontFamilyChange,
         handleStageClick,
-        handleTextContentChange
+        handleTextContentChange,
+        handleOpacityChange
     };
 };

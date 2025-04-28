@@ -8,6 +8,7 @@ interface ShapeSettingsPanelProps {
     handleStrokeColorChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleStrokeWidthChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     handleCornerRadiusChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    handleOpacityChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const ModalRect: React.FC<ShapeSettingsPanelProps> = ({
@@ -16,36 +17,53 @@ export const ModalRect: React.FC<ShapeSettingsPanelProps> = ({
     handleColorChange,
     handleStrokeColorChange,
     handleStrokeWidthChange,
-    handleCornerRadiusChange
+    handleCornerRadiusChange,
+    handleOpacityChange
 }) => {
     const selectedRect = rectangles.find((r) => r.id === selectedId);
 
     if (!selectedRect) return null;
 
     return (
-        <div className="absolute top-4 right-4 bg-white dark:bg-[#333] p-4 rounded-xl shadow-xl z-50 flex flex-col gap-3">
-            <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-                Color de relleno:
+        <div className="absolute top-1 right-1 bg-[var(--bg-chatgpt2)]  rounded-sm
+            z-50 flex flex-col gap-3 w-[100px] md:w-[200px] overflow-hidden
+            md:text-sm text-[9px] text-zinc-300">
+            <div className="flex flex-col gap-2 md:px-4 px-2 pt-1">
+                <label >Color de relleno</label>
                 <input
                     type="color"
                     onChange={handleColorChange}
                     value={selectedRect.fill || "#000000"}
-                    className="ml-2 w-8 h-8 cursor-pointer rounded-4xl"
+                    className="w-full h-5 md:h-8 cursor-pointer rounded-4xl"
                 />
-            </label>
+            </div>
 
-            <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-                Color del borde:
+
+            <div className="flex flex-col gap-2 md:px-4 px-2">
+                <label>Color del borde</label>
                 <input
                     type="color"
                     onChange={handleStrokeColorChange}
                     value={selectedRect.stroke || "#000000"}
-                    className="ml-2 w-8 h-8 cursor-pointer rounded-4xl"
+                    className="w-full h-5 md:h-8 cursor-pointer rounded-4xl"
                 />
-            </label>
+            </div>
 
-            <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-                Grosor del borde:
+            <div className=" flex flex-col gap-2 md:px-4 px-2">
+                <label> Opacidad: {((selectedRect.opacity ?? 1) * 100).toFixed()}%</label>
+                <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={selectedRect.opacity ?? 1}
+                    onChange={handleOpacityChange}
+                    className=""
+                />
+            </div>
+
+            <div className=" flex flex-col gap-2 md:px-4 px-2">
+                <label> Stroke Width: {((selectedRect.strokeWidth ?? 1))*5}%</label>
                 <input
                     type="range"
                     min={0}
@@ -53,12 +71,12 @@ export const ModalRect: React.FC<ShapeSettingsPanelProps> = ({
                     step={1}
                     value={selectedRect.strokeWidth || 0}
                     onChange={handleStrokeWidthChange}
-                    className="ml-2"
+                    className=""
                 />
-            </label>
+            </div>
 
-            <label className="text-sm font-medium text-gray-700 dark:text-white flex items-center">
-                Esquinas redondeadas:
+            <div className=" flex flex-col gap-2 md:px-4 px-2 pb-1">
+                <label> Corner Radius: {((typeof selectedRect.cornerRadius === "number" ? selectedRect.cornerRadius : 1))*2}%</label>
                 <input
                     type="range"
                     min={0}
@@ -66,9 +84,9 @@ export const ModalRect: React.FC<ShapeSettingsPanelProps> = ({
                     step={1}
                     value={Array.isArray(selectedRect.cornerRadius) ? selectedRect.cornerRadius[0] : selectedRect.cornerRadius || 0}
                     onChange={handleCornerRadiusChange}
-                    className="ml-2"
+                    className=""
                 />
-            </label>
+            </div>
         </div>
     );
 };

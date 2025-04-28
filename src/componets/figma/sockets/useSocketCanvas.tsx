@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { socket } from "../../api/index";
-import { CircleProps, RectProps, TextProps } from "../../lib/types";
+import { socket } from "../../../api/index";
+import { CircleProps, RectProps, TextProps } from "../../../lib/types";
 
 
 export const useSocketCanvas = (

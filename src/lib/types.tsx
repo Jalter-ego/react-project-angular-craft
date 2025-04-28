@@ -8,6 +8,7 @@ export interface RectProps {
     stroke: string | null;
     strokeWidth: number | null;
     cornerRadius: number |number[]| null;
+    opacity: number | null;
 }
 
 export interface CircleProps {

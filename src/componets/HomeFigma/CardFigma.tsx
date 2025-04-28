@@ -1,5 +1,6 @@
 import { FC } from "react"
 import { fetchDeleteFigma } from "../../api/figma"
+import { useNavigate } from "react-router-dom"
 
 export interface CardFigmaProps {
     id: string,
@@ -14,7 +15,7 @@ export interface CardFigmaProps {
 
 export const CardFigma: FC<CardFigmaProps> = ({ nameFigma, image, id, onDelete }) => {
     const img = image === null ? "https://image.shutterstock.com/z/stock-vector-default-ui-image-placeholder-for-wireframes-for-apps-and-websites-1037719192.jpg" : image;
-
+    const navigate = useNavigate()
     const handleDeleteFigma = async()=>{
         try {
             const result = await fetchDeleteFigma(id)
@@ -28,14 +29,14 @@ export const CardFigma: FC<CardFigmaProps> = ({ nameFigma, image, id, onDelete }
     return (
         <article
             className="border-1 rounded-2xl flex flex-col w-full p-3 gap-1
-            border-[var(--bg-dark)] [box-shadow:0_0_10px_1px_var(--bg-dark)] overflow-hidden">
-            <a href={`/figma/${id}`}>
+            border-[var(--bg-dark)] overflow-hidden">
+            <div onClick={()=>navigate(`/figma/${id}`)}>
                 <img
-                    className="w-60 h-48 opacity-40 rounded-[10%] hover:opacity-80 
+                    className="w-60 h-auto opacity-40 rounded-[10%] hover:opacity-80 
                     hover:scale-105 transition-all duration-300 "
                     src={img} alt=""
                 />
-            </a>
+            </div>
             <div className="flex justify-between items-center">
                 <h1 className="font-semibold">
                     {nameFigma}
