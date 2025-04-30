@@ -9,6 +9,8 @@ export default function HomeFigma() {
     const navigate = useNavigate()
     const { user } = useUser()
     const [designs, setDesings] = useState<CardFigmaProps[]>([])
+    const [nameFigma, setNameFigma] = useState('')
+    const [showModal, setShowModal] = useState(false)
     const email = user?.email || ''
 
     useEffect(() => {
@@ -17,7 +19,6 @@ export default function HomeFigma() {
                 if (!email) return;
                 const data = await fetchAllByUserFigma(email);
                 setDesings(data);
-                console.log(data);
             } catch (error) {
                 console.log(error);
             }
@@ -30,11 +31,11 @@ export default function HomeFigma() {
             const newFigma: FigmaProps = {
                 hostEmail: email,
                 whitelist: [],
+                nameFigma: nameFigma,
                 rectangles: [],
                 circles: [],
                 texts: []
             }
-            console.log(newFigma)
             const data = await fetchCreateFigmac(newFigma)
             navigate(`/figma/${data.id}`)
         } catch (error) {
@@ -48,6 +49,60 @@ export default function HomeFigma() {
 
     return (
         <div className="w-full h-full flex flex-col gap-6 p-10 px-[10%] mb-2">
+            {/* Modal */}
+            {showModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+                    <div className="bg-zinc-900 p-6 rounded-xl shadow-2xl w-[90%] max-w-md animate-fade-in-down relative">
+                        <div className="flex items-center gap-2 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                            </svg>
+                            <h2 className="text-xl font-bold text-white">Crear nuevo diseño</h2>
+                        </div>
+
+                        <input
+                            type="text"
+                            value={nameFigma}
+                            onChange={(e) => setNameFigma(e.target.value)}
+                            placeholder="Ej: Diseño Landing Page"
+                            className="w-full px-4 py-2 rounded-md mb-4 border border-zinc-700 bg-zinc-800 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowModal(false)
+                                    setNameFigma('')
+                                }}
+                                className="bg-zinc-700 text-white px-4 py-2 rounded hover:bg-zinc-600 transition"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (!nameFigma.trim()) return alert("Debes escribir un nombre para el diseño.")
+                                    handleCreateFigma()
+                                    setShowModal(false)
+                                    setNameFigma('')
+                                }}
+                                className="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-500 transition font-semibold"
+                            >
+                                Crear
+                            </button>
+                        </div>
+
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="absolute top-2 right-2 text-zinc-400 hover:text-white"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
+            {/* Encabezado */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pb-6 border-b border-zinc-800">
                 <div>
                     <h1 className="md:text-3xl text-2xl font-bold tracking-tight animate-fade-in-right"
@@ -65,7 +120,7 @@ export default function HomeFigma() {
                 </div>
 
                 <button
-                    onClick={handleCreateFigma}
+                    onClick={() => setShowModal(true)}
                     className="bg-[var(--bg-astro)] p-2 w-fit rounded-lg hover:bg-[var(--bg-astro-h)] transition-all duration-300 flex gap-2 font-semibold cursor-pointer"
                 >
                     <svg
@@ -85,6 +140,7 @@ export default function HomeFigma() {
                 </button>
             </div>
 
+            {/* Lista de diseños */}
             <div className="w-full h-full flex md:flex-row flex-col items-center justify-between gap-10">
                 {designs.length === 0 ? (
                     <div className="w-full h-[300px] flex flex-col items-center justify-center gap-4 text-[var(--bg-astro)] animate-fade-in">
@@ -120,7 +176,7 @@ export default function HomeFigma() {
                         </p>
                     </div>
                     <button
-                        onClick={handleCreateFigma}
+                        onClick={() => setShowModal(true)}
                         className="bg-white text-black md:px-1 px-3 rounded-lg md:w-fit w-[150px] 
                             font-semibold hover:bg-zinc-200 transition-all text-sm cursor-pointer"
                     >

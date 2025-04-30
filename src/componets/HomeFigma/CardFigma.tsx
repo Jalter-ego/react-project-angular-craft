@@ -14,7 +14,7 @@ export interface CardFigmaProps {
 }
 
 export const CardFigma: FC<CardFigmaProps> = ({ nameFigma, image, id, onDelete }) => {
-    const img = image === null ? "https://image.shutterstock.com/z/stock-vector-default-ui-image-placeholder-for-wireframes-for-apps-and-websites-1037719192.jpg" : image;
+    const img = image === null ? "" : image;
     const navigate = useNavigate()
     const handleDeleteFigma = async()=>{
         try {
@@ -32,7 +32,7 @@ export const CardFigma: FC<CardFigmaProps> = ({ nameFigma, image, id, onDelete }
             border-[var(--bg-dark)] overflow-hidden">
             <div onClick={()=>navigate(`/figma/${id}`)}>
                 <img
-                    className="w-60 h-auto opacity-40 rounded-[10%] hover:opacity-80 
+                    className="w-60 h-30 opacity-40 rounded-[10%] hover:opacity-80 
                     hover:scale-105 transition-all duration-300 "
                     src={img} alt=""
                 />

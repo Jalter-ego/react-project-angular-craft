@@ -15,12 +15,28 @@ export default function NavBarFigma(
 ) {
     const [showModal, setShowModal] = useState(false)
 
-    const handleExport = async (type: 'json' | 'xml') => {
+    const handleExport = async (type: 'json' | 'xml' | 'png') => {
         setShowModal(false);
         toast.success(`Exportando como ${type.toUpperCase()}`);
 
         try {
             const figmaData = await handleSaveFigma();
+            console.log(figmaData);
+
+            if (type === 'png') {
+                const response = await fetch(figmaData.image);
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'figma_export.png';
+                document.body.appendChild(link); 
+                link.click();
+                document.body.removeChild(link); 
+                URL.revokeObjectURL(url);
+                return; 
+              }
 
             let content = '';
             let fileName = 'figma_export';
@@ -28,10 +44,11 @@ export default function NavBarFigma(
             if (type === 'json') {
                 content = exportToJson(figmaData);
                 fileName += '.json';
-            } else {
+            } else if (type === 'xml') {
                 content = exportToXml(figmaData);
                 fileName += '.xml';
             }
+
             const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
 
@@ -48,41 +65,41 @@ export default function NavBarFigma(
     };
 
 
-const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
 
-    const reader = new FileReader();
+        const reader = new FileReader();
 
-    reader.onload = (event) => {
-        try {
-            const content = event.target?.result as string;
-            let parsedData;
+        reader.onload = (event) => {
+            try {
+                const content = event.target?.result as string;
+                let parsedData;
 
-            if (file.name.endsWith('.json')) {
-                parsedData = JSON.parse(content);
+                if (file.name.endsWith('.json')) {
+                    parsedData = JSON.parse(content);
 
-            } else if (file.name.endsWith('.xml')) {
-                parsedData = xmlToJson(content)
-            } else {
-                toast.error("Tipo de archivo no soportado.");
-                return;
+                } else if (file.name.endsWith('.xml')) {
+                    parsedData = xmlToJson(content)
+                } else {
+                    toast.error("Tipo de archivo no soportado.");
+                    return;
+                }
+
+                handleSetStatus(parsedData);
+                toast.success("Archivo cargado exitosamente");
+                setShowModal(false);
+
+            } catch (error) {
+                toast.error("Error al cargar el archivo");
+                console.error(error);
             }
+        };
 
-            handleSetStatus(parsedData);
-            toast.success("Archivo cargado exitosamente");
-            setShowModal(false);
-
-        } catch (error) {
-            toast.error("Error al cargar el archivo");
-            console.error(error);
-        }
+        reader.readAsText(file);
     };
 
-    reader.readAsText(file);
-};
 
-    
 
 
     return (
@@ -143,6 +160,12 @@ const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-file-type-xml"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path d="M4 15l4 6" /><path d="M4 21l4 -6" /><path d="M19 15v6h3" /><path d="M11 21v-6l2.5 3l2.5 -3v6" /></svg>
                                 <span>Exportar XML</span>
+                            </button>
+                            <button
+                                onClick={() => handleExport('png')}
+                                className="w-full py-2 rounded-lg  flex items-center gap-2 hover:scale-105 transition-all duration-300"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-file-type-png"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M14 3v4a1 1 0 0 0 1 1h4" /><path d="M5 12v-7a2 2 0 0 1 2 -2h7l5 5v4" /><path d="M20 15h-1a2 2 0 0 0 -2 2v2a2 2 0 0 0 2 2h1v-3" /><path d="M5 18h1.5a1.5 1.5 0 0 0 0 -3h-1.5v6" /><path d="M11 21v-6l3 6v-6" /></svg>                                <span>Exportar PNG</span>
                             </button>
                             <div className="border border-dashed border-zinc-500 w-[80%] h-22 rounded-md flex flex-col 
                                 items-center justify-center gap-2 relative hover:scale-105 transition-all duration-300">

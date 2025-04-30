@@ -45,6 +45,7 @@ export interface GenericProps{
 export interface FigmaProps{
     hostEmail : string
     whitelist: string[]
+    nameFigma: string
     rectangles: RectProps[]
     circles: CircleProps[]
     texts: TextProps[]
