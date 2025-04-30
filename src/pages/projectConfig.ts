@@ -2,24 +2,77 @@
 
 // Configuración de `angular.json`
 export const angularJsonConfig = `{
-    "projects": {
-      "app": {
-        "projectType": "application",
-        "sourceRoot": "src",
-        "architect": {
-          "build": {
-            "options": {
-              "index": "src/index.html",
-              "main": "src/main.ts",
-              "outputPath": "dist/app",
-              "styles": ["src/index.css"],
-              "scripts": []
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "projects": {
+    "app": {
+      "projectType": "application",
+      "root": "src",
+      "sourceRoot": "src",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:browser",
+          "options": {
+            "index": "index.html",
+            "main": "main.ts",
+            "outputPath": "dist/app",
+            "tsConfig": "tsconfig.json",
+            "polyfills": "polyfills.ts",
+            "assets": [
+              "src/favicon.ico",
+              "src/assets"
+            ],
+            "styles": [
+              "index.css"
+            ],
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "extractCss": true,
+              "namedChunks": false,
+              "aot": true,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true,
+              "namedChunks": true,
+              "extractLicenses": false,
+              "vendorChunk": true,
+              "buildOptimizer": false
             }
-          }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "buildTarget": "app:build"
+          },
+          "configurations": {
+            "production": {
+              "buildTarget": "app:build:production"
+            },
+            "development": {
+              "buildTarget": "app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
         }
       }
     }
-  }`;
+  }
+}`;
+
+export const polyfills = `
+import 'zone.js';
+`
 
 // Configuración de `main.ts`
 export const mainTsConfig = `
@@ -53,4 +106,3 @@ margin: 0;
 font-family: system-ui;
 }
 `;
-

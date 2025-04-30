@@ -3,6 +3,7 @@ import {
   indexCssConfig,
   indexHtmlConfig,
   mainTsConfig,
+  polyfills,
 } from "../pages/projectConfig";
 
 export function generateAppComponentTs(componentName: string) {
@@ -84,6 +85,7 @@ export function generateProjectConfigFromResponse(
       "src/index.html": indexHtmlConfig,
       "src/index.css": indexCssConfig,
       "src/main.ts": mainTsConfig,
+      "src/polyfills.ts": polyfills,
       "src/app/app.component.ts": generateAppComponentTs(nameComponent),
       "src/app/app.module.ts": generateAppModuleTs(nameComponent),
       [`src/app/${nameComponent}/${nameComponent}.component.html`]: html,
