@@ -29,7 +29,7 @@ export const ModalText: React.FC<ModalTextProps> = ({
 
       <div className="flex flex-col gap-2 md:px-4 px-2 pt-1 border-b pb-4 border-b-zinc-600">
         <label >Position</label>
-        <section className="flex items-center gap-2">
+        <section className="flex md:flex-row flex-col items-center gap-2">
           <div className="flex items-center gap-2">
             <label>X:</label>
             <input

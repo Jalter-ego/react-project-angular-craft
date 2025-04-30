@@ -41,7 +41,11 @@ export default function Figma() {
         handleFontFamilyChange,
         handleStageClick,
         handleTextContentChange,
-        handleOpacityChange
+        handleOpacityChange,
+        handleHeightChange,
+        handleWidthChange,
+        handleXChange,
+        handleYChange
     } = createShapeHandlers(selectedId, selectedTool, rectangles, circles, texts,
         selectShape, setSelectedTool, setRectangles, setCircles, setTexts, handleCanvasChange);
 
@@ -172,7 +176,7 @@ export default function Figma() {
                         <ModalRect {...{
                             selectedId, rectangles, handleColorChange,
                             handleCornerRadiusChange, handleStrokeColorChange, handleStrokeWidthChange,
-                            handleOpacityChange
+                            handleOpacityChange,handleWidthChange,handleHeightChange,handleXChange,handleYChange
                         }} />
                         <ModalCircle {...{ selectedId, circles, handleColorChange }} />
                         <ModalText {...{ selectedId, texts, handleColorChange, handleFontSizeChange, handleFontFamilyChange, handleTextContentChange }} />
