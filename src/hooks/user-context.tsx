@@ -6,6 +6,7 @@ interface User {
   given_name: string;
   email: string;
   picture: string;
+  credits: number;
 }
 
 interface UserContextType {
@@ -35,6 +36,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children
         given_name: decodedToken.given_name,
         email: decodedToken.email,
         picture: decodedToken.picture,
+        credits: decodedToken.credits
       };
       setUser(user);  
     } catch (error) {

@@ -27,7 +27,56 @@ export const ModalRect: React.FC<ShapeSettingsPanelProps> = ({
     return (
         <div className="absolute top-1 right-1 bg-[var(--bg-chatgpt2)]  rounded-sm
             z-50 flex flex-col gap-3 w-[100px] md:w-[200px] overflow-hidden
-            md:text-sm text-[9px] text-zinc-300">
+            md:text-sm text-[9px] text-zinc-300 pb-2">
+
+            <div className="flex flex-col gap-2 md:px-4 px-2 pt-1 border-b pb-4 border-b-zinc-600">
+                <label >Layout</label>
+                <section className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                        <label>W:</label>
+                        <input
+                            type="number"
+                            onChange={() => { }}
+                            value={selectedRect.width.toFixed()}
+                            className="w-14 h-5 md:h-8 cursor-pointer rounded-md border border-zinc-600 text-center"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label>H:</label>
+                        <input
+                            type="number"
+                            onChange={() => { }}
+                            value={selectedRect.height.toFixed()}
+                            className="w-14 h-5 md:h-8 cursor-pointer rounded-md border border-zinc-600 text-center"
+                        />
+                    </div>
+                </section>
+            </div>
+
+            <div className="flex flex-col gap-2 md:px-4 px-2 pt-1 border-b pb-4 border-b-zinc-600">
+                <label >Position</label>
+                <section className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
+                        <label>X:</label>
+                        <input
+                            type="number"
+                            onChange={() => { }}
+                            value={selectedRect.x.toFixed()}
+                            className="w-14 h-5 md:h-8 cursor-pointer rounded-md border border-zinc-600 text-center"
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label>Y:</label>
+                        <input
+                            type="number"
+                            onChange={() => { }}
+                            value={selectedRect.y.toFixed()}
+                            className="w-14 h-5 md:h-8 cursor-pointer rounded-md border border-zinc-600 text-center"
+                        />
+                    </div>
+                </section>
+            </div>
+
             <div className="flex flex-col gap-2 md:px-4 px-2 pt-1">
                 <label >Color de relleno</label>
                 <input
@@ -63,7 +112,7 @@ export const ModalRect: React.FC<ShapeSettingsPanelProps> = ({
             </div>
 
             <div className=" flex flex-col gap-2 md:px-4 px-2">
-                <label> Stroke Width: {((selectedRect.strokeWidth ?? 1))*5}%</label>
+                <label> Stroke Width: {((selectedRect.strokeWidth ?? 1)) * 5}%</label>
                 <input
                     type="range"
                     min={0}
@@ -76,7 +125,7 @@ export const ModalRect: React.FC<ShapeSettingsPanelProps> = ({
             </div>
 
             <div className=" flex flex-col gap-2 md:px-4 px-2 pb-1">
-                <label> Corner Radius: {((typeof selectedRect.cornerRadius === "number" ? selectedRect.cornerRadius : 1))*2}%</label>
+                <label> Corner Radius: {((typeof selectedRect.cornerRadius === "number" ? selectedRect.cornerRadius : 1)) * 2}%</label>
                 <input
                     type="range"
                     min={0}

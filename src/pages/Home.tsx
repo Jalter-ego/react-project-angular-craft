@@ -1,5 +1,41 @@
+import { fetchPaymentStripe, fetchUpdateCredits, propsStripePayment } from "../api/payment";
+import { useUser } from "../hooks/user-context";
 
 export default function Home() {
+    const {user,setUser} = useUser()
+
+    const handlePaymentStripe = async (amount: number) => {
+        try {
+            const propsPayment: propsStripePayment = {
+                amount: amount,
+                currency: "usd",
+                nombre_servicio: "Servicio Premium"
+            };
+    
+            const response = await fetchPaymentStripe(propsPayment);
+    
+            if (response && user?.email) {
+                let updateResponse: number = user.credits
+                if (amount === 500) {
+                    updateResponse = await fetchUpdateCredits(user.email, 300);
+                }
+                if (amount === 1000) {
+                    updateResponse = await fetchUpdateCredits(user.email, 700);
+                }
+    
+                if (updateResponse !== undefined) {
+                    setUser(prevUser => prevUser ? { ...prevUser, credits: updateResponse } : prevUser);
+                }
+    
+                window.open(response.url, '_blank');
+            }
+    
+            console.log(response);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+    
 
     return (
         <div className="w-full h-full flex flex-col items-center gap-10 px-[10%] py-10 animate-fade-in">
@@ -27,16 +63,18 @@ export default function Home() {
                     <div className="bg-zinc-900 p-8 rounded-2xl shadow-xl w-80 flex flex-col gap-6 border border-zinc-700 hover:scale-105 transition-transform">
                         <div>
                             <h3 className="text-xl font-bold text-white">Standard</h3>
-                            <p className="text-3xl font-extrabold text-white mt-2">$16<span className="text-sm font-normal">/mes</span></p>
+                            <p className="text-3xl font-extrabold text-white mt-2">$5<span className="text-sm font-normal">/mes</span></p>
                             <p className="text-sm text-zinc-400 mt-1">Facturado anualmente</p>
                         </div>
                         <ul className="flex flex-col gap-2 text-sm text-zinc-400">
-                            <li>✓ 1200 créditos / mes</li>
+                            <li>✓ 300 créditos</li>
                             <li>✓ Exportaciones ilimitadas</li>
-                            <li>✓ Generación de UI web y móvil</li>
+                            <li>✓ Generación de UI web</li>
                             <li>✓ Uso comercial general</li>
                         </ul>
-                        <button className="mt-auto bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium">Empezar</button>
+                        <button
+                            onClick={() => handlePaymentStripe(500)}
+                            className="mt-auto bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg font-medium">Empezar</button>
                     </div>
 
                     {/* Card Pro */}
@@ -46,16 +84,18 @@ export default function Home() {
                         </span>
                         <div>
                             <h3 className="text-xl font-bold text-white">Pro</h3>
-                            <p className="text-3xl font-extrabold text-white mt-2">$32<span className="text-sm font-normal">/mes</span></p>
+                            <p className="text-3xl font-extrabold text-white mt-2">$10<span className="text-sm font-normal">/mes</span></p>
                             <p className="text-sm text-zinc-400 mt-1">Facturado anualmente</p>
                         </div>
                         <ul className="flex flex-col gap-2 text-sm text-zinc-400">
-                            <li>✓ 3000 créditos / mes</li>
+                            <li>✓ 700 créditos</li>
                             <li>✓ Exportaciones ilimitadas</li>
-                            <li>✓ Modo privado</li>
-                            <li>✓ Generación de UI web y móvil</li>
+                            <li>✓ Generación de UI web</li>
+                            <li>✓ Uso comercial general</li>
                         </ul>
-                        <button className="mt-auto bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium">Empezar</button>
+                        <button
+                            onClick={() => handlePaymentStripe(1000)}
+                            className="mt-auto bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium">Empezar</button>
                     </div>
 
                     {/* Card Enterprise */}
@@ -71,7 +111,8 @@ export default function Home() {
                             <li>✓ Velocidad de generación más rápida</li>
                             <li>✓ Soporte prioritario</li>
                         </ul>
-                        <button className="mt-auto bg-zinc-700 hover:bg-zinc-600 text-white py-2 rounded-lg font-medium">Contactar</button>
+                        <button
+                            className="mt-auto bg-zinc-700 hover:bg-zinc-600 text-white py-2 rounded-lg font-medium">Contactar</button>
                     </div>
                 </div>
             </div>

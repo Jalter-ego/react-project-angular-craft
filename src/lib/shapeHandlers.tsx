@@ -36,11 +36,13 @@ export const createShapeHandlers = (
         }
     };
 
+    
+
     const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newColor = e.target.value;
-    
+
         let updated = false;
-    
+
         const rectFound = rectangles.find(r => r.id === selectedId);
         if (rectFound) {
             const newRects = rectangles.map(r =>
@@ -50,7 +52,7 @@ export const createShapeHandlers = (
             handleCanvasChange({ rectangles: newRects, circles, texts });
             updated = true;
         }
-    
+
         const circleFound = circles.find(c => c.id === selectedId);
         if (!updated && circleFound) {
             const newCircles = circles.map(c =>
@@ -60,7 +62,7 @@ export const createShapeHandlers = (
             handleCanvasChange({ rectangles, circles: newCircles, texts });
             updated = true;
         }
-    
+
         const textFound = texts.find(t => t.id === selectedId);
         if (!updated && textFound) {
             const newTexts = texts.map(t =>
@@ -70,7 +72,7 @@ export const createShapeHandlers = (
             handleCanvasChange({ rectangles, circles, texts: newTexts });
         }
     };
-    
+
 
     const handleStrokeColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newStrokeColor = e.target.value;
@@ -90,7 +92,7 @@ export const createShapeHandlers = (
     const handleOpacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newOpacity = parseFloat(e.target.value);
         setRectangles(prev => updateById(prev, selectedId, r => ({ ...r, opacity: newOpacity })));
-      };      
+    };
 
     const handleStageClick = (e: Konva.KonvaEventObject<MouseEvent>) => {
         checkDeselect(e);

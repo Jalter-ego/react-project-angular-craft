@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useRef, useState } from "react";
-import { tools } from "../lib/NavTools";
 import { Layer, Stage } from "react-konva";
 import { CircleProps, RectProps, TextProps, UpdateFigma } from "../lib/types";
 import { createShapeHandlers } from "../lib/shapeHandlers";
@@ -16,8 +15,8 @@ import { useDeleteKey } from "../componets/figma/sockets/useSocketDelete";
 import { fetchFindOneFigma, fetchUpdateFigma, fetchUpdateImageFigma, uploadImage } from "../api/figma";
 import Konva from "konva";
 import { handleSoket } from "../componets/figma/sockets/handleSockets";
-import { toast } from 'sonner'
 import { useZoom } from "../hooks/useZoom";
+import NavBarFigma from "../componets/figma/NavBar";
 
 
 export default function Figma() {
@@ -29,6 +28,7 @@ export default function Figma() {
     const [circles, setCircles] = useState<CircleProps[]>([]);
     const [texts, setTexts] = useState<TextProps[]>([]);
     const [selectedId, selectShape] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false)
     const { handleCanvasChange, handleRectChange, handleCircleChange
         , handleTextChange
     } = handleSoket({ id, rectangles, circles, texts, setRectangles, setCircles, setTexts })
@@ -71,9 +71,13 @@ export default function Figma() {
     useEffect(() => {
         const fetchData = async () => {
             try {
+                setLoading(true)
                 const data = await fetchFindOneFigma(id || '');
                 console.log(data);
                 handleSetStatus(data)
+                setTimeout(() => {
+                    setLoading(false)
+                }, 1000);
             } catch (error) {
                 console.error(error);
             }
@@ -103,92 +107,80 @@ export default function Figma() {
         return urlImage
     }
 
-    
-      
+
+
 
 
     return (
-        <div className="flex flex-col items-center w-full h-full gap-10 relative">
-            <div className="w-full h-full absolute overflow-hidden">
-                <Fragment>
-                    <Stage
-                        width={window.innerWidth}
-                        height={window.innerHeight}
-                        onMouseDown={handleStageClick}
-                        ref={stateRef}
-                    >
-                        <Layer>
-                            {rectangles.map((rect) => (
-                                <Rectangle
-                                    key={rect.id}
-                                    shapeProps={rect}
-                                    isSelected={rect.id === selectedId}
-                                    onSelect={() => selectShape(rect.id)}
-                                    onChange={handleRectChange}
-                                />
-                            ))}
-                            {circles.map((rect) => (
-                                <CircleShape
-                                    key={rect.id}
-                                    shapeProps={rect}
-                                    isSelected={rect.id === selectedId}
-                                    onSelect={() => selectShape(rect.id)}
-                                    onChange={handleCircleChange}
-                                />
-                            ))}
-                            {texts.map((rect) => (
-                                <TextShape
-                                    key={rect.id}
-                                    shapeProps={rect}
-                                    isSelected={rect.id === selectedId}
-                                    onSelect={() => selectShape(rect.id)}
-                                    onChange={handleTextChange}
-                                />
-                            ))}
-                        </Layer>
-                    </Stage>
-                </Fragment>
-            </div>
-
-            <nav className="flex items-center justify-center gap-4 bg-[#2c2c2c]  p-2 px-2 rounded-2xl bottom-4 absolute">
-                {tools.map((tool) => (
-                    <div
-                        key={tool.name}
-                        onClick={() => setSelectedTool(tool.name)}
-                        className={`p-1 rounded-lg transition-all duration-300 hover:bg-[#f7f3f236] ${selectedTool === tool.name ? "bg-[#82aded]" : ""
-                            }`}
-                    >
-                        {tool.icon}
-                    </div>
-                ))}
-                <button
-                    className="p-1 rounded-lg transition-all duration-300 hover:bg-[#f7f3f236]" 
-                    onClick={async () => {
-                        try {
-                            const promise = handleSaveFigma();
-                            toast.promise(promise,{
-                                loading: 'loading...',
-                                success: 'Diseño guardado correctamente'
-                            })
-                        } catch (error) {
-                            toast.error('No se pudo guardar el diseño');
-                        }
-                    }}
-                    >
-                    <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1} strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-device-floppy"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2" /><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M14 4l0 4l-6 0l0 -4" /></svg>
-                </button>
-            </nav>
-            {selectedId && (
-                <>
-                    <ModalRect {...{ selectedId, rectangles, handleColorChange, 
-                        handleCornerRadiusChange, handleStrokeColorChange, handleStrokeWidthChange,
-                        handleOpacityChange }} />
-                    <ModalCircle {...{ selectedId, circles, handleColorChange }} />
-                    <ModalText {...{ selectedId, texts, handleColorChange, handleFontSizeChange, handleFontFamilyChange, handleTextContentChange }} />
-                </>
+        <>
+            {loading && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+                    <span className="loading loading-bars loading-xl text-[var(--bg-astro)]"></span>
+                </div>
             )}
+            <div className="flex flex-col items-center w-full h-full gap-10 relative">
+                <div className="w-full h-full absolute overflow-hidden">
+                    <Fragment>
+                        <Stage
+                            width={window.innerWidth}
+                            height={window.innerHeight}
+                            onMouseDown={handleStageClick}
+                            ref={stateRef}
+                        >
+                            <Layer>
+                                {rectangles.map((rect) => (
+                                    <Rectangle
+                                        key={rect.id}
+                                        shapeProps={rect}
+                                        isSelected={rect.id === selectedId}
+                                        onSelect={() => selectShape(rect.id)}
+                                        onChange={handleRectChange}
+                                    />
+                                ))}
+                                {circles.map((rect) => (
+                                    <CircleShape
+                                        key={rect.id}
+                                        shapeProps={rect}
+                                        isSelected={rect.id === selectedId}
+                                        onSelect={() => selectShape(rect.id)}
+                                        onChange={handleCircleChange}
+                                    />
+                                ))}
+                                {texts.map((rect) => (
+                                    <TextShape
+                                        key={rect.id}
+                                        shapeProps={rect}
+                                        isSelected={rect.id === selectedId}
+                                        onSelect={() => selectShape(rect.id)}
+                                        onChange={handleTextChange}
+                                    />
+                                ))}
+                            </Layer>
+                        </Stage>
+                    </Fragment>
+                </div>
+
+                <NavBarFigma
+                    selectedTool={selectedTool}
+                    handleSaveFigma={handleSaveFigma}
+                    setSelectedTool={setSelectedTool}
+                    handleSetStatus={handleSetStatus}
+                />
+                
+                {selectedId && (
+                    <>
+                        <ModalRect {...{
+                            selectedId, rectangles, handleColorChange,
+                            handleCornerRadiusChange, handleStrokeColorChange, handleStrokeWidthChange,
+                            handleOpacityChange
+                        }} />
+                        <ModalCircle {...{ selectedId, circles, handleColorChange }} />
+                        <ModalText {...{ selectedId, texts, handleColorChange, handleFontSizeChange, handleFontFamilyChange, handleTextContentChange }} />
+                    </>
+                )}
 
 
-        </div>
+            </div>
+        </>
     );
 }

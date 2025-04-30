@@ -25,6 +25,31 @@ export const ModalText: React.FC<ModalTextProps> = ({
     <div className="absolute top-1 right-1 bg-[var(--bg-chatgpt2)]  rounded-sm
         z-50 flex flex-col gap-3 w-[100px] md:w-[200px] overflow-hidden
         md:text-sm text-[9px] text-zinc-300">
+
+
+      <div className="flex flex-col gap-2 md:px-4 px-2 pt-1 border-b pb-4 border-b-zinc-600">
+        <label >Position</label>
+        <section className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <label>X:</label>
+            <input
+              type="number"
+              onChange={() => { }}
+              value={selectedText.x.toFixed()}
+              className="w-14 h-5 md:h-8 cursor-pointer rounded-md border border-zinc-600 text-center"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <label>Y:</label>
+            <input
+              type="number"
+              onChange={() => { }}
+              value={selectedText.y.toFixed()}
+              className="w-14 h-5 md:h-8 cursor-pointer rounded-md border border-zinc-600 text-center"
+            />
+          </div>
+        </section>
+      </div>
       <div className="flex flex-col gap-2 md:px-4 px-2 pt-1">
         <label >Color de relleno</label>
         <input
